@@ -12,7 +12,8 @@
                 var symbols = GetSymbols(data);
                 var numbers = GetNumbers(data);
                 List<int> result = CheckAdjacency(symbols, numbers);
-                Console.WriteLine(result.Sum());
+                List<int> solutionPart2 = CheckPart2(symbols, numbers);
+                Console.WriteLine($"Part 1: {result.Sum()}\nPart 2: {solutionPart2.Sum()}");
             }
             catch (Exception ex) { }
 
@@ -20,7 +21,22 @@
 
         }
 
-        private List<int> CheckAdjacency(List<Vector2Int> symbols, List<Vector2IntWithLengthAndNumber> numbers)
+        private List<int> CheckPart2(List<Vector2IntWithChar> symbols, List<Vector2IntWithLengthAndNumber> numbers)
+        {
+            var result = new List<int>();
+            var stars = symbols.Where(x => x.Char == '*').ToList();
+            foreach (var star in stars)
+            {
+                var adjacent = numbers.Where(num => star.X.Between(num.X - 1, num.X + num.Length) && star.Y.Between(num.Y - 1, num.Y + 1));
+                if (adjacent.Count() == 2)
+                {
+                    result.Add(adjacent.First().Number * adjacent.Last().Number);
+                }
+            }
+            return result;
+        }
+
+        private List<int> CheckAdjacency(List<Vector2IntWithChar> symbols, List<Vector2IntWithLengthAndNumber> numbers)
         {
             var result = new List<int>();
             numbers = numbers.OrderBy(x => x.Y).ToList();
@@ -36,16 +52,16 @@
 
         }
 
-        private List<Vector2Int> GetSymbols(string[] data)
+        private List<Vector2IntWithChar> GetSymbols(string[] data)
         {
-            List<Vector2Int> symbols = new();
+            List<Vector2IntWithChar> symbols = new();
             for (int i = 0; i < data.Length; i++)
             {
                 for (int j = 0; j < data[i].Length; j++)
                 {
                     if (data[i][j] != '.' && !char.IsNumber(data[i][j]))
                     {
-                        symbols.Add(new() { X = j, Y = i });
+                        symbols.Add(new() { X = j, Y = i, Char = data[i][j] });
                     }
                 }
             }
@@ -102,6 +118,10 @@
         {
             public int X;
             public int Y;
+        }
+        private class Vector2IntWithChar() : Vector2Int
+        {
+            public char Char;
         }
 
         private class Vector2IntWithLengthAndNumber() : Vector2Int
